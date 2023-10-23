@@ -22,12 +22,12 @@ return function (App $app) {
         return $response->withHeader("Content-Type", "application/json");
     });
 
-    // get by id
-    $app->get('/buku/{id}', function (Request $request, Response $response, $args) {
+    // get by id_buku
+    $app->get('/buku/{id_buku}', function (Request $request, Response $response, $args) {
         $db = $this->get(PDO::class);
 
-        $query = $db->prepare('SELECT * FROM buku WHERE id=?');
-        $query->execute([$args['id']]);
+        $query = $db->prepare('SELECT * FROM buku WHERE id_buku=?');
+        $query->execute([$args['id_buku']]);
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
         $response->getBody()->write(json_encode($results[0]));
 
@@ -38,21 +38,25 @@ return function (App $app) {
     $app->post('/buku', function (Request $request, Response $response) {
         $parsedBody = $request->getParsedBody();
 
-        $id = $parsedBody["id"]; // menambah dengan kolom baru
-        $countryName = $parsedBody["name"];
+        $id_buku = $parsedBody["id_buku"]; // menambah dengan kolom baru
+        $judul = $parsedBody["judul"];
+        $nama_pengarang = $parsedBody["nama_pengarang"];
+        $tahun_terbit = $parsedBody["tahun_terbit"];
+        $jumlah_halaman = $parsedBody["jumlah_halaman"];
+        $ISBN = $parsedBody["ISBN"];
+        $nama_penerbit = $parsedBody["nama_penerbit"];
+        $alamat_penerbit = $parsedBody["alamat_penerbit"];
 
         $db = $this->get(PDO::class);
 
-        $query = $db->prepare('INSERT INTO buku (id, name) values (?, ?)');
+        $query = $db->prepare('INSERT INTO buku (id_buku, judul, nama_pengarang, tahun_terbit, jumlah_halaman, ISBN, nama_penerbit, alamat_penerbit) values (?, ?, ?, ?, ?, ?, ?, ?)');
 
         // urutan harus sesuai dengan values
-        $query->execute([$id, $countryName]);
-
-        $lastId = $db->lastInsertId();
+        $query->execute([$id_buku, $judul, $nama_pengarang, $tahun_terbit, $jumlah_halaman, $ISBN, $nama_penerbit, $alamat_penerbit,]);
 
         $response->getBody()->write(json_encode(
             [
-                'message' => 'country disimpan dengan id ' . $lastId
+                'message' => 'buku disimpan dengan id ' . $id_buku
             ]
         ));
 
@@ -60,19 +64,19 @@ return function (App $app) {
     });
 
     // put data
-    $app->put('/buku/{id}', function (Request $request, Response $response, $args) {
+    $app->put('/buku/{id_buku}', function (Request $request, Response $response, $args) {
         $parsedBody = $request->getParsedBody();
 
-        $currentId = $args['id'];
+        $currentid_buku = $args['id_buku'];
         $countryName = $parsedBody["name"];
         $db = $this->get(PDO::class);
 
-        $query = $db->prepare('UPDATE buku SET name = ? WHERE id = ?');
-        $query->execute([$countryName, $currentId]);
+        $query = $db->prepare('UPDATE buku SET name = ? WHERE id_buku = ?');
+        $query->execute([$countryName, $currentid_buku]);
 
         $response->getBody()->write(json_encode(
             [
-                'message' => 'country dengan id ' . $currentId . ' telah diupdate dengan nama ' . $countryName
+                'message' => 'country dengan id_buku ' . $currentid_buku . ' telah diupdate dengan nama ' . $countryName
             ]
         ));
 
@@ -80,13 +84,13 @@ return function (App $app) {
     });
 
     // delete data
-    $app->delete('/buku/{id}', function (Request $request, Response $response, $args) {
-        $currentId = $args['id'];
+    $app->delete('/buku/{id_buku}', function (Request $request, Response $response, $args) {
+        $currentid_buku = $args['id_buku'];
         $db = $this->get(PDO::class);
 
         try {
-            $query = $db->prepare('DELETE FROM buku WHERE id = ?');
-            $query->execute([$currentId]);
+            $query = $db->prepare('DELETE FROM buku WHERE id_buku = ?');
+            $query->execute([$currentid_buku]);
 
             if ($query->rowCount() === 0) {
                 $response = $response->withStatus(404);
@@ -98,7 +102,7 @@ return function (App $app) {
             } else {
                 $response->getBody()->write(json_encode(
                     [
-                        'message' => 'country dengan id ' . $currentId . ' dihapus dari database'
+                        'message' => 'buku dengan id_buku ' . $currentid_buku . ' dihapus dari database'
                     ]
                 ));
             }
