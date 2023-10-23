@@ -15,7 +15,7 @@ return function (App $app) {
     $app->get('/buku', function (Request $request, Response $response) {
         $db = $this->get(PDO::class);
 
-        $query = $db->query('SELECT * FROM buku');
+        $query = $db->query('CALL GetBook()');
         $results = $query->fetchAll(PDO::FETCH_ASSOC);
         $response->getBody()->write(json_encode($results));
 
